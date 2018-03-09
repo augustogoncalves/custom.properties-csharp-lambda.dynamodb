@@ -1,0 +1,1 @@
+# custom.properties-csharp-lambda.dynamodb
