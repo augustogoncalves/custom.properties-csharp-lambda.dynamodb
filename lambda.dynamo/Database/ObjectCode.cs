@@ -29,7 +29,7 @@ namespace Autodesk.Forge.Sample.Database
 {
   public class ObjectCode
   {
-    private const string TABLE_NAME = "OBJECT_CODE";
+    private const string TABLE_NAME = "OBJECTCODE";
     private static AmazonDynamoDBClient client;
     private static DynamoDBContext DDBContext { get; set; }
 
@@ -51,9 +51,12 @@ namespace Autodesk.Forge.Sample.Database
 
     public async Task<List<Model.ObjectCode>> List(string parentObjectCodeId)
     {
+      ListTablesResponse existingTables = await client.ListTablesAsync();
+      if (!existingTables.TableNames.Contains(TABLE_NAME)) await SetupTable(client, TABLE_NAME, "CodeId");
+
       try
       {
-        List<ScanCondition> filter = new List<ScanCondition>() { new ScanCondition("ParentId", ScanOperator.Equal, parentObjectCodeId) };
+        List<ScanCondition> filter = new List<ScanCondition>() { new ScanCondition("ParentId", ScanOperator.Equal, parentObjectCodeId.ToUpper()) };
         AsyncSearch<Model.ObjectCode> scan = DDBContext.ScanAsync<Model.ObjectCode>(filter);
 
         List<Model.ObjectCode> documentList = new List<Model.ObjectCode>();
@@ -74,11 +77,12 @@ namespace Autodesk.Forge.Sample.Database
     public async Task<Model.ObjectCode> Get(string objectCodeId)
     {
       ListTablesResponse existingTables = await client.ListTablesAsync();
-      if (!existingTables.TableNames.Contains(TABLE_NAME)) await SetupTable(client, TABLE_NAME, "ObjectCode");
+      if (!existingTables.TableNames.Contains(TABLE_NAME)) await SetupTable(client, TABLE_NAME, "CodeId");
 
       try
       {
-        return await DDBContext.LoadAsync<Model.ObjectCode>(objectCodeId);
+        var doc = await DDBContext.LoadAsync<Model.ObjectCode>(objectCodeId.ToUpper());
+        return doc;
       }
       catch (Exception ex)
       {
@@ -90,10 +94,13 @@ namespace Autodesk.Forge.Sample.Database
     public async Task<bool> Save(Model.ObjectCode objectCode)
     {
       ListTablesResponse existingTables = await client.ListTablesAsync();
-      if (!existingTables.TableNames.Contains(TABLE_NAME)) await SetupTable(client, TABLE_NAME, "ObjectCode");
+      //await client.DeleteTableAsync(TABLE_NAME);
+      if (!existingTables.TableNames.Contains(TABLE_NAME)) await SetupTable(client, TABLE_NAME, "CodeId");
 
       try
       {
+        objectCode.CodeId = objectCode.CodeId.ToUpper();
+        objectCode.ParentId = objectCode.ParentId.ToUpper();
         await DDBContext.SaveAsync<Model.ObjectCode>(objectCode);
         return true;
       }

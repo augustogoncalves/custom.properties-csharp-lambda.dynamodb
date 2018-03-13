@@ -37,14 +37,14 @@ namespace Autodesk.Forge.Sample.Controllers
     [HttpGet]
     public async Task<List<Model.Reference>> List()
     {
-      string parentId = (base.Request.Query.ContainsKey("id") ? base.Request.Query["id"][0] : "0");
-      if (parentId.Equals("#")) parentId = "0"; // jsTree
-      List<Model.ObjectCode> objectCodes = await Database.List(parentId);
+      string parentId = (base.Request.Query.ContainsKey("id") ? base.Request.Query["id"][0] : "root");
+      if (parentId.Equals("#")) parentId = "root"; // jsTree
+      List<Model.ObjectCode> objectCodes = await Database.List(parentId.ToUpper());
 
       // now we need to "transform" into a list if id/text pair
       List<Model.Reference> referenceList = new List<Model.Reference>();
       foreach (Model.ObjectCode objectCode in objectCodes)
-        referenceList.Add(new Model.Reference { id = objectCode.CodeId, text = objectCode.Name });
+        referenceList.Add(new Model.Reference { id = objectCode.CodeId.ToUpper(), text = objectCode.Name });
 
       return referenceList;
     }
@@ -58,11 +58,16 @@ namespace Autodesk.Forge.Sample.Controllers
         return null;
       }
 
-      return await Database.Get(objectCodeId);
+      var objectCode = await Database.Get(objectCodeId);
+      if (objectCode == null)
+      {
+        base.Response.StatusCode = (int)HttpStatusCode.NotFound;
+      }
+      return objectCode;
     }
 
     [HttpPost()]
-    public async Task Create(Model.ObjectCode objectCode)
+    public async Task Create([FromBody]Model.ObjectCode objectCode)
     {
       if (string.IsNullOrWhiteSpace(objectCode.CodeId))
       {
@@ -74,7 +79,7 @@ namespace Autodesk.Forge.Sample.Controllers
     }
 
     [HttpPut("{objectCodeId}")]
-    public async Task Update(string objectCodeId, Model.ObjectCode objectCode)
+    public async Task Update(string objectCodeId, [FromBody]Model.ObjectCode objectCode)
     {
       if (string.IsNullOrWhiteSpace(objectCodeId))
       {
@@ -82,7 +87,7 @@ namespace Autodesk.Forge.Sample.Controllers
         return;
       }
 
-      if (string.IsNullOrWhiteSpace(objectCode.CodeId) || !objectCodeId.Equals(objectCode.CodeId))
+      if (string.IsNullOrWhiteSpace(objectCode.CodeId) || !objectCodeId.ToUpper().Equals(objectCode.CodeId.ToUpper()))
       {
         base.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         return;

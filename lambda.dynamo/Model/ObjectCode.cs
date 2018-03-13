@@ -20,9 +20,7 @@ namespace Autodesk.Forge.Sample.Model
 {
   public class ObjectCode
   {
-    [Amazon.DynamoDBv2.DataModel.DynamoDBHashKey]
     public string CodeId { get; set; }
-    [Amazon.DynamoDBv2.DataModel.DynamoDBRangeKey]
     public string ParentId { get; set; }
 
     public string Name { get; set; }
