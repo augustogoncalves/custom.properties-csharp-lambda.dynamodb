@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <RootNamespace>Autodesk.Forge.Sample</RootNamespace>
+    <AssemblyName>lambda.dynamo</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
