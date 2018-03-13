@@ -1,0 +1,11 @@
+.hig__global-nav__top-nav__hamburger, .hig__global-nav__top-nav__search, .hig__global-nav__top-nav__project-account-switcher__target__caret {
+    display: none;
+}
+
+.hig__global-nav__slot{
+    padding: 0px;
+}
+
+.reflex {
+    height: calc(100vh - 60px);
+}
