@@ -1,0 +1,12 @@
+body {
+    font-family: verdana, helvetica, arial, sans-serif;
+    padding: 20px;
+    font-size: 12px;
+    margin: 0;
+}
+
+#dbTree {
+    padding-top: 5px;
+    height: calc(100vh - 180px);
+    overflow: auto;
+}
