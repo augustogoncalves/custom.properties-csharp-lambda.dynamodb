@@ -24,27 +24,35 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Autodesk.Forge.Sample
 {
   public class Startup
+  {
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public static IConfiguration Configuration { get; private set; }
-
-        // This method gets called by the runtime. Use this method to add services to the container
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddMvc();
-
-            // Add S3 to the ASP.NET Core dependency injection framework.
-            services.AddAWSService<Amazon.S3.IAmazonS3>();
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.UseMvc();
-        }
+      Configuration = configuration;
     }
+
+    public static IConfiguration Configuration { get; private set; }
+
+    // This method gets called by the runtime. Use this method to add services to the container
+    public void ConfigureServices(IServiceCollection services)
+    {
+      services.AddCors();
+
+      services.AddMvc();
+
+      // Add S3 to the ASP.NET Core dependency injection framework.
+      services.AddAWSService<Amazon.S3.IAmazonS3>();
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    {
+      app.UseCors(builder => builder
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
+
+      app.UseMvc();
+    }
+  }
 }
